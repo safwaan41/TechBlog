@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { Project, User } = require('../models');
+const { Project, User, Comment } = require('../models');
 const withAuth = require('../utils/auth');
 
 //HOME PAGE ROUTE
@@ -12,13 +12,17 @@ router.get('/', async (req, res) => {
             model: User,
             attributes: ['name'],
           },
+          {
+            model: Comment,
+            attributes: ['body'],
+          }
         ],
       });
       
       const projects = projectData.map((project) => project.get({ plain: true }));
 
       res.render('homepage', { 
-        projects, 
+        projects,
         logged_in: req.session.logged_in 
       });
     } catch (err) {
@@ -54,6 +58,14 @@ router.get('/', async (req, res) => {
     res.render('login');
   });
   
+  router.get('/project/:id', async (req, res) => {
+    try {
+      const projectData = await Project.findOne({where: {id: req.params.id}})
+      res.render('project', projectData)
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  });
   
   
   
